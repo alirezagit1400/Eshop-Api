@@ -1,1 +1,1 @@
-view products list in rest api 
+shop online in rest api with laravel
