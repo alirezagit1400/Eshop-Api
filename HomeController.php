@@ -15,20 +15,17 @@ use App\Area;
 class HomeController extends BaseController
 {
 
-
   public function index($id){
-
-
 
 $brands=Factory::with('part')->with('rates')->latest()->get(['id','title','image','part_id','updated_at'])->groupBy('part_id');
  $brands=$brands->map(function ($v,$k){
 
-return collect($v->first())->only('part')->put('brands',$v->map(function ($v,$k){
+   return collect($v->first())->only('part')->put('brands',$v->map(function ($v,$k){
   
     $rate= ($v['rates']->count()>0)?$v['rates']->avg('rate'):2.5;
     
     return collect($v)->put('rate',$rate)->only('id','title','image','rate','updated_at');
-})->sortByDesc(function($v,$k){
+      })->sortByDesc(function($v,$k){
 
  $updated=strtotime($v['updated_at']);
  
@@ -38,7 +35,7 @@ return collect($v->first())->only('part')->put('brands',$v->map(function ($v,$k)
  }
  
   return ($v['rate']/5)+($updated/time());
-})->values()->map(function($v,$k){
+   })->values()->map(function($v,$k){
 
    $state = ($k<2) ? 'tab':'free'; 
 
@@ -54,26 +51,26 @@ return collect($v->first())->only('part')->put('brands',$v->map(function ($v,$k)
  
    $parts=$companies->map(function ($i,$k)  {
 	  
-if(collect($i->items)->isNotEmpty()) {
-  $rate=Rategroup::rateCompany($i['id']);
+    if(collect($i->items)->isNotEmpty()) {
+     $rate=Rategroup::rateCompany($i['id']);
 
- $is=Group::find($i['id'])->isOnline();
+      $is=Group::find($i['id'])->isOnline();
    
 
-$state = $is ? 'online' : 'off';
+         $state = $is ? 'online' : 'off';
 
 
   // $i=collect($i)->put('rate',$rate)->put('state',$state);
 	return ['group'=>collect($i)->put('rate',$rate)->put('state',$state)->except('items'),'parts'=>collect($i->items)->unique('product.factory.part')->
-  pluck('product.factory.part')];
+        pluck('product.factory.part')];
 }
 
 	});
 
 
 
-  $groups=$parts->map(function ($i,$k)  {
-$id=$i['group'];
+   $groups=$parts->map(function ($i,$k)  {
+   $id=$i['group'];
    $n=collect($i['parts'])->map(function($v,$k) use ($id) {
     return ['part'=>$v,'group'=>$id];
    });
@@ -104,7 +101,6 @@ $groups= $groups->map(function ($v,$k){
 //return $v->first()->only(['part']);
 })->values();
 
- //$companies=collect($companies)->sortByDesc('rate')->values();
 
     return $this->sendResponse(['brand'=>$brands,'company'=>$groups], 'OK');
   }
